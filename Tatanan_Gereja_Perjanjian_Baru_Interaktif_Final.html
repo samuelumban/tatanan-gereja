@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tatanan Gereja Perjanjian Baru</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root {
+  --bg-primary: #E8F4FD;
+  --bg-card: #FFFFFF;
+  --blue-deep: #1B3A5C;
+  --blue-mid: #2E6DA4;
+  --blue-light: #B8D8F0;
+  --orange: #F28C28;
+  --orange-hover: #E07B1A;
+  --orange-light: #FFF3E6;
+  --green: #4CAF50;
+  --green-light: #E8F5E9;
+  --green-bright: #66BB6A;
+  --red-soft: #FFCDD2;
+  --red: #E57373;
+  --purple: #7E57C2;
+  --purple-light: #F3E5F5;
+  --yellow-note: #FFF9C4;
+  --yellow-border: #FFD54F;
+  --text-dark: #1a1a2e;
+  --text-body: #333344;
+  --text-muted: #666680;
+  --shadow: 0 4px 20px rgba(27,58,92,0.08);
+  --shadow-lg: 0 8px 32px rgba(27,58,92,0.12);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-body);
+  line-height: 1.75;
+  font-size: 16px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== SPLASH SCREEN ===== */
+.splash {
+  position: fixed; inset:0; z-index:9999;
+  background: linear-gradient(135deg, #1B3A5C 0%, #2E6DA4 50%, #7E57C2 100%);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  transition: opacity 0.8s, transform 0.8s;
+}
+.splash.hide { opacity:0; transform: scale(1.1); pointer-events:none; }
+.splash h1 {
+  font-family: 'Playfair Display', serif;
+  color: white; font-size: clamp(1.6rem,5vw,2.4rem);
+  text-align: center; margin-bottom: 8px;
+  animation: fadeUp 1s ease-out;
+}
+.splash p {
+  color: rgba(255,255,255,0.8); font-size: clamp(0.9rem,3vw,1.1rem);
+  text-align: center; margin-bottom: 6px;
+  animation: fadeUp 1s 0.2s ease-out both;
+}
+.splash .subtitle {
+  color: rgba(255,255,255,0.6); font-size: clamp(0.8rem,2.5vw,0.95rem);
+  margin-bottom: 32px; animation: fadeUp 1s 0.35s ease-out both;
+}
+.btn-start {
+  background: var(--orange); color: white; border: none;
+  padding: 16px 48px; border-radius: 50px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.1rem; font-weight: 700;
+  cursor: pointer; animation: fadeUp 1s 0.8s ease-out both;
+  transition: all 0.3s; box-shadow: 0 4px 20px rgba(242,140,40,0.4);
+}
+.btn-start:hover { background: var(--orange-hover); transform: translateY(-2px); box-shadow: 0 6px 28px rgba(242,140,40,0.5); }
+
+/* ===== HEADER / PROGRESS ===== */
+.top-bar {
+  position: sticky; top:0; z-index:100;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  padding: 12px 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.top-bar-inner {
+  max-width: 720px; margin: 0 auto;
+  display: flex; align-items: center; gap: 12px;
+}
+.progress-track {
+  flex:1; height: 10px; background: #E0E0E0;
+  border-radius: 5px; overflow: hidden;
+}
+.progress-fill {
+  height:100%; width:0%; border-radius: 5px;
+  background: linear-gradient(90deg, var(--green), var(--green-bright));
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+.progress-label {
+  font-size: 0.8rem; font-weight: 700;
+  color: var(--green); white-space: nowrap;
+}
+
+/* ===== MAIN CONTAINER ===== */
+.container {
+  max-width: 720px; margin: 0 auto;
+  padding: 20px 16px 100px;
+}
+
+/* ===== CHUNK CARDS ===== */
+.chunk {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: clamp(20px,4vw,32px);
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  display: none;
+  animation: slideUp 0.5s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+.chunk.active { display: block; }
+.chunk::before {
+  content: ''; position: absolute; top:0; left:0; right:0;
+  height: 4px;
+}
+.chunk.chunk-intro::before { background: var(--blue-mid); }
+.chunk.chunk-timeline::before { background: var(--purple); }
+.chunk.chunk-concept::before { background: var(--orange); }
+.chunk.chunk-apply::before { background: var(--green); }
+.chunk.chunk-summary::before { background: var(--blue-deep); }
+.chunk.chunk-reflect::before { background: linear-gradient(90deg, var(--purple), var(--orange)); }
+
+.chunk-number {
+  display: inline-block;
+  background: var(--blue-light);
+  color: var(--blue-deep);
+  font-size: 0.75rem; font-weight: 800;
+  padding: 4px 12px; border-radius: 20px;
+  margin-bottom: 12px; letter-spacing: 0.5px;
+}
+
+h2 {
+  font-family: 'Playfair Display', serif;
+  color: var(--blue-deep);
+  font-size: clamp(1.3rem, 4vw, 1.6rem);
+  margin-bottom: 16px; line-height: 1.3;
+}
+
+h3 {
+  color: var(--blue-deep);
+  font-size: clamp(1.05rem, 3vw, 1.2rem);
+  margin: 20px 0 10px; font-weight: 700;
+}
+
+p { margin-bottom: 14px; }
+
+/* ===== IMAGE CONTAINERS ===== */
+.img-container {
+  text-align: center; margin: 16px 0;
+  border-radius: var(--radius-sm); overflow: hidden;
+  background: #f5f5f5;
+}
+.img-container img {
+  max-width: 100%; height: auto;
+  border-radius: var(--radius-sm);
+}
+.img-caption {
+  font-size: 0.8rem; color: var(--text-muted);
+  padding: 8px; font-style: italic;
+}
+
+/* ===== MASCOT TIP BOX ===== */
+.tip-box {
+  background: var(--yellow-note);
+  border-radius: var(--radius-sm);
+  padding: 18px 20px 18px 90px;
+  margin: 28px 0 20px;
+  position: relative;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+}
+.tip-box .mascot-img {
+  position: absolute;
+  left: -8px; bottom: -4px;
+  width: 90px; height: auto;
+  filter: drop-shadow(2px 2px 6px rgba(0,0,0,0.12));
+  z-index: 2;
+}
+.tip-box .tip-label {
+  color: var(--orange);
+  font-weight: 800;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+.tip-box .tip-text {
+  font-size: 0.9rem;
+  color: var(--text-body);
+  margin: 0;
+}
+
+/* ===== TAHUKAH KAMU (NOTEBOOK STYLE) ===== */
+.tahukah-box {
+  background: #FFFEF5;
+  border: 1px solid #E8E0C8;
+  border-radius: var(--radius-sm);
+  padding: 20px 20px 20px 24px;
+  margin: 20px 0;
+  position: relative;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.04);
+  background-image:
+    repeating-linear-gradient(transparent, transparent 27px, #E8E0C8 27px, #E8E0C8 28px);
+  background-position: 0 20px;
+}
+.tahukah-box::before {
+  content: ''; position: absolute; left: 18px; top: 0; bottom: 0;
+  width: 2px; background: #FFCCCC; opacity: 0.5;
+}
+.tahukah-header {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 10px; position: relative; z-index: 1;
+}
+.tahukah-header .lamp {
+  font-size: 1.3rem;
+}
+.tahukah-header span {
+  font-weight: 800; color: var(--orange);
+  font-size: 1rem;
+  background: #FFFEF5;
+  padding-right: 8px;
+}
+.tahukah-text {
+  font-size: 0.92rem;
+  line-height: 1.97;
+  position: relative; z-index: 1;
+  margin: 0;
+  background: transparent;
+}
+
+/* ===== PETA PIKIRAN ===== */
+.mindmap { text-align: center; margin: 20px 0; }
+.mindmap-placeholder {
+  background: linear-gradient(135deg, #F0F4FF, #E8F0FE);
+  border: 2px dashed var(--blue-light);
+  border-radius: var(--radius-sm);
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--blue-mid);
+  font-weight: 600;
+}
+
+/* ===== TIMELINE ===== */
+.timeline {
+  position: relative;
+  padding-left: 28px;
+  margin: 20px 0;
+}
+.timeline::before {
+  content: ''; position: absolute; left: 8px;
+  top: 0; bottom: 0; width: 3px;
+  background: linear-gradient(180deg, var(--purple), var(--purple-light));
+  border-radius: 2px;
+}
+.tl-item {
+  position: relative;
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  background: var(--purple-light);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--purple);
+}
+.tl-item::before {
+  content: ''; position: absolute;
+  left: -24px; top: 18px;
+  width: 12px; height: 12px;
+  background: var(--purple);
+  border-radius: 50%;
+  border: 3px solid white;
+  box-shadow: 0 0 0 2px var(--purple);
+}
+.tl-year {
+  font-weight: 800; color: var(--purple);
+  font-size: 0.85rem;
+}
+.tl-desc {
+  font-size: 0.9rem; margin: 0;
+}
+
+/* ===== QUIZ STYLES ===== */
+.quiz-block {
+  margin: 24px 0;
+  padding: 20px;
+  background: linear-gradient(135deg, #F8FBFF, #F0F4FF);
+  border-radius: var(--radius);
+  border: 2px solid var(--blue-light);
+}
+.quiz-question {
+  font-weight: 700; color: var(--blue-deep);
+  margin-bottom: 14px; font-size: 1rem;
+}
+.quiz-options {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.quiz-option {
+  background: white;
+  border: 2px solid #E0E0E0;
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.95rem;
+  display: flex; align-items: center; gap: 10px;
+}
+.quiz-option:hover { border-color: var(--blue-mid); background: #F8FBFF; }
+.quiz-option.correct { 
+  background: var(--green-light); 
+  border-color: var(--green);
+  animation: correctPulse 0.5s;
+}
+.quiz-option.wrong { 
+  background: var(--red-soft); 
+  border-color: var(--red);
+  animation: shake 0.5s;
+}
+.quiz-option.disabled { pointer-events: none; opacity: 0.6; }
+
+.quiz-input {
+  margin-top: 10px;
+}
+.quiz-input input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #E0E0E0;
+  border-radius: var(--radius-sm);
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+.quiz-input input:focus {
+  outline: none;
+  border-color: var(--blue-mid);
+}
+
+.quiz-feedback {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  display: none;
+}
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct {
+  background: var(--green-light);
+  color: var(--green);
+  border: 1px solid var(--green);
+}
+.quiz-feedback.wrong {
+  background: var(--red-soft);
+  color: var(--red);
+  border: 1px solid var(--red);
+}
+
+.quiz-submit {
+  margin-top: 12px;
+  background: var(--orange);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.quiz-submit:hover {
+  background: var(--orange-hover);
+  transform: translateY(-2px);
+}
+.quiz-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== DRAG & DROP ===== */
+.drag-container {
+  margin: 20px 0;
+}
+.drag-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+  min-height: 50px;
+  padding: 12px;
+  background: #F8FBFF;
+  border-radius: var(--radius-sm);
+  border: 2px dashed var(--blue-light);
+}
+.drag-item {
+  background: white;
+  border: 2px solid var(--blue-light);
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  cursor: grab;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  user-select: none;
+}
+.drag-item:active { cursor: grabbing; }
+.drag-item.dragging { opacity: 0.5; }
+
+.drop-zones {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.drop-zone {
+  background: white;
+  border: 2px dashed #E0E0E0;
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  min-height: 60px;
+  transition: all 0.3s;
+}
+.drop-zone.drag-over {
+  background: #F0F4FF;
+  border-color: var(--blue-mid);
+}
+.drop-zone-label {
+  font-weight: 700;
+  color: var(--blue-deep);
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+/* ===== BUTTONS ===== */
+.navigation-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin: 24px auto 0;
+}
+
+.btn-back {
+  background: var(--blue-light);
+  color: var(--blue-deep);
+  border: 2px solid var(--blue-mid);
+  padding: 12px 28px;
+  border-radius: 50px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: none;
+}
+.btn-back.show { display: block; }
+.btn-back:hover {
+  background: var(--blue-mid);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.btn-next {
+  background: var(--orange);
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 50px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(242,140,40,0.3);
+  display: none;
+}
+.btn-next.show { display: block; }
+.btn-next:hover {
+  background: var(--orange-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(242,140,40,0.4);
+}
+
+/* ===== SUMMARY BOX ===== */
+.summary-box {
+  background: linear-gradient(135deg, #F0F4FF, #E8F0FE);
+  border-left: 4px solid var(--blue-deep);
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  margin: 20px 0;
+}
+.summary-box h3 {
+  margin-top: 0;
+}
+.summary-box ul {
+  margin: 10px 0 10px 20px;
+}
+.summary-box li {
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.btn-download-summary {
+  background: var(--blue-mid);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 16px;
+}
+.btn-download-summary:hover {
+  background: var(--blue-deep);
+  transform: translateY(-2px);
+}
+
+/* ===== REFLECTION ===== */
+.reflection-form {
+  margin: 20px 0;
+}
+.reflection-item {
+  margin-bottom: 20px;
+}
+.reflection-item label {
+  display: block;
+  font-weight: 700;
+  color: var(--blue-deep);
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+.reflection-item textarea {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #E0E0E0;
+  border-radius: var(--radius-sm);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color 0.3s;
+}
+.reflection-item textarea:focus {
+  outline: none;
+  border-color: var(--blue-mid);
+}
+
+.btn-save-reflection {
+  background: var(--green);
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 50px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(76,175,80,0.3);
+}
+.btn-save-reflection:hover {
+  background: var(--green-bright);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(76,175,80,0.4);
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes correctPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+  .tip-box {
+    padding: 18px 16px 18px 75px;
+  }
+  .tip-box .mascot-img {
+    width: 70px;
+  }
+}
+
+/* Responsive Design */
+@media screen and (min-width: 1200px) {
+    .container {
+        max-width: 1400px;
+        padding: 40px;
+    }
+    .section {
+        padding: 40px;
+    }
+}
+
+@media screen and (min-width: 768px) and (max-width: 1199px) {
+    .container {
+        max-width: 960px;
+        padding: 30px;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .container {
+        max-width: 100%;
+        padding: 15px;
+    }
+    .section {
+        padding: 20px 15px;
+    }
+    h1 {
+        font-size: 1.8rem;
+    }
+    h2 {
+        font-size: 1.5rem;
+    }
+}
+
+</style>
+</head>
+<body>
+
+<!-- SPLASH SCREEN -->
+<div class="splash" id="splash">
+  <h1>Tatanan Gereja Perjanjian Baru</h1>
+  <p>Sejarah Gereja Kelas X</p>
+  <p class="subtitle"></p>
+  <button class="btn-start" onclick="startLearning()">Mulai Belajar</button>
+</div>
+
+<!-- TOP BAR -->
+<div class="top-bar" id="topBar" style="display:none;">
+  <div class="top-bar-inner">
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="progress-label" id="progressLabel">0/8</div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="container" id="mainContent" style="display:none;">
+
+  <!-- CHUNK 1: PENGANTAR -->
+  <div class="chunk chunk-intro active" id="chunk1">
+    <span class="chunk-number">BAGIAN 1 dari 8</span>
+    <h2>Gereja Bukan Sekadar Bangunan</h2>
+    
+    <p>Pernahkah kamu bertanya-tanya, apa sebenarnya yang dimaksud dengan "gereja"? Apakah hanya gedung megah dengan menara tinggi? Atau ada sesuatu yang lebih dalam dari itu?</p>
+    
+    <p>Bayangkan gereja sebagai sebuah keluarga besar yang dipersatukan oleh kasih Kristus. Tatanan Gereja Perjanjian Baru adalah fondasi yang membentuk identitas, komitmen, dan tujuan gereja sejak masa para rasul hingga kini.</p>
+
+    <div class="tip-box">
+      <img src="maskot.png" alt="Maskot" class="mascot-img">
+      <div>
+        <div class="tip-label">Ingat!</div>
+        <div class="tip-text">Gereja adalah persekutuan orang-orang yang percaya kepada Yesus Kristus, bukan hanya bangunan fisik.</div>
+      </div>
+    </div>
+
+    <div class="img-container">
+      <img src="gereja_persekutuan.png" alt="Gereja sebagai persekutuan orang-orang dari berbagai latar belakang">
+      <div class="img-caption">Gereja adalah persekutuan orang-orang yang dipersatukan dalam Kristus<br><em>Gambar generated AI</em></div>
+    </div>
+
+    <div class="navigation-buttons">
+      <button class="btn-next show" onclick="nextChunk()">Lanjutkan →</button>
+    </div>
+  </div>
+
+  <!-- CHUNK 2: PETA PIKIRAN -->
+  <div class="chunk chunk-intro" id="chunk2">
+    <span class="chunk-number">BAGIAN 2 dari 8</span>
+    <h2>Peta Konsep Tatanan Gereja</h2>
+    
+    <p>Sebelum kita melangkah lebih jauh, mari lihat gambaran besar tentang apa yang akan kamu pelajari dalam materi ini.</p>
+
+    <style>
+  .mindmap-wrapper {
+    width: 100%;
+    max-width: 800px;        /* dimensi awal */
+    aspect-ratio: 4 / 3;    /* 800 x 600 */
+    margin: 0 auto;
+  }
+
+  .mindmap {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  .mindmap img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .img-caption {
+    text-align: center;
+    font-size: 0.9rem;
+    margin-top: 8px;
+    color: #444;
+  }
+
+/* Responsive Design */
+@media screen and (min-width: 1200px) {
+    .container {
+        max-width: 1400px;
+        padding: 40px;
+    }
+    .section {
+        padding: 40px;
+    }
+}
+
+@media screen and (min-width: 768px) and (max-width: 1199px) {
+    .container {
+        max-width: 960px;
+        padding: 30px;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .container {
+        max-width: 100%;
+        padding: 15px;
+    }
+    .section {
+        padding: 20px 15px;
+    }
+    h1 {
+        font-size: 1.8rem;
+    }
+    h2 {
+        font-size: 1.5rem;
+    }
+}
+
+</style>
+
+<div class="mindmap-wrapper">
+  <div class="mindmap">
+    <img 
+      src="peta_konsep_tatanan_gereja.png" 
+      alt="Peta Konsep Tatanan Gereja Perjanjian Baru"
+    >
+  </div>
+  <div class="img-caption">
+    Peta Konsep: Tatanan Gereja Perjanjian Baru
+  </div>
+</div>
+
+
+    <div class="tahukah-box">
+      <div class="tahukah-header">
+        <span class="lamp">💡</span>
+        <span>Tahukah Kamu?</span>
+      </div>
+      <p class="tahukah-text">Kata "gereja" berasal dari bahasa Yunani <em>ekklesia</em> yang berarti "perkumpulan orang-orang yang dipanggil keluar" untuk mengikuti Kristus.</p>
+    </div>
+
+    <div class="navigation-buttons">
+      <button class="btn-back show" onclick="prevChunk()">← Kembali</button>
+      <button class="btn-next show" onclick="nextChunk()">Lanjutkan →</button>
+    </div>
+  </div>
+
+  <!-- CHUNK 3: TIMELINE -->
+  <div class="chunk chunk-timeline" id="chunk3">
+    <span class="chunk-number">BAGIAN 3 dari 8</span>
+    <h2>Perjalanan Waktu: Dari Pentakosta hingga Kini</h2>
+    
+    <p>Mari kita telusuri perjalanan gereja dari masa kelahirannya hingga perkembangannya menjadi institusi global yang kita kenal sekarang.</p>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-year">33 M - Hari Pentakosta</div>
+        <p class="tl-desc">Kelahiran gereja mula-mula dengan turunnya Roh Kudus. Para rasul mulai memberitakan Injil.</p>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">28-100 M - Era Perjanjian Baru</div>
+        <p class="tl-desc">Periode penulisan kitab-kitab Perjanjian Baru dan penyebaran Injil ke seluruh wilayah Mediterania.</p>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">313 M - Maklumat Milano</div>
+        <p class="tl-desc">Pengakuan Kekaisaran Romawi terhadap Agama Kristen sebagai agama resmi.</p>
+      </div>
+      
+      <div class="tl-item">
+        <div class="tl-year">380 M - Kekristenan sebagai Agama Resmi</div>
+        <p class="tl-desc">Kaisar Theodosius menjadikan Kekristenan sebagai satu-satunya agama resmi Kekaisaran Romawi dan memperkuat status kekristenan.</p>
+      </div>
+    </div>
+
+    <div class="quiz-block">
+      <p class="quiz-question">Pada tahun berapakah Hari Pentakosta terjadi dan gereja mula-mula lahir?</p>
+      <div class="quiz-input">
+        <input type="text" id="q1-input" placeholder="Ketik di sini ">
+      </div>
+      <button class="quiz-submit" onclick="checkQuiz1()">Cek Jawaban</button>
+      <div class="quiz-feedback" id="q1-feedback"></div>
+    </div>
+
+    <div class="navigation-buttons">
+      <button class="btn-back show" onclick="prevChunk()">← Kembali</button>
+      <button class="btn-next" id="btn-chunk3" onclick="nextChunk()">Lanjutkan →</button>
+    </div>
+  </div>
+
+  <!-- CHUNK 4: PENGERTIAN GEREJA + KUIS -->
+  <div class="chunk chunk-concept" id="chunk4">
+    <span class="chunk-number">BAGIAN 4 dari 8</span>
+    <h2>Apa Itu Gereja? Memahami Ekklesia</h2>
+    
+    <p>Kata "gereja" memiliki makna yang sangat kaya. Dalam berbagai bahasa, gereja disebut: <em>church</em> (Inggris), <em>Kirche</em> (Jerman), <em>église</em> (Prancis), dan <em>iglesia</em> (Spanyol). Semuanya berakar pada kata Yunani <em>ekklesia</em>.</p>
+
+    <p><em>Ekklesia</em> bukan hanya menunjuk pada tempat berkumpul, tetapi pada orang-orang yang diselamatkan oleh Yesus Kristus dan menjadi anggota tubuh-Nya. Gereja memiliki dua aspek penting:</p>
+
+    <div class="summary-box">
+      <p><strong>1. Gereja yang Kasat Mata</strong> - Lembaga dan organisasi gereja yang bisa kita lihat secara fisik, seperti gereja lokal, denominasi, dan institusi gereja lainnya.</p>
+      <p><strong>2. Gereja yang Tak Kasat Mata</strong> - Kumpulan semua orang yang sungguh-sungguh diselamatkan oleh Yesus Kristus di seluruh dunia dan sepanjang zaman.</p>
+    </div>
+
+    <div class="tip-box">
+      <img src="maskot.png" alt="Maskot" class="mascot-img">
+      <div>
+        <div class="tip-label">Penting!</div>
+        <div class="tip-text">Gereja adalah tempat umat Kristen beribadah, belajar firman Tuhan, saling mengasihi, dan melayani sesama.</div>
+      </div>
+    </div>
+
+    <div class="quiz-block">
+      <p class="quiz-question">Apa yang dimaksud dengan "gereja yang tak kasat mata"?</p>
+      <div class="quiz-options" id="q2-options">
+        <div class="quiz-option" onclick="selectQuiz2(this, false)">
+          Gedung gereja yang tidak terlihat dari jalan raya
+        </div>
+        <div class="quiz-option" onclick="selectQuiz2(this, true)">
+          Kumpulan semua orang yang diselamatkan oleh Yesus Kristus
+        </div>
+        <div class="quiz-option" onclick="selectQuiz2(this, false)">
+          Gereja yang belum memiliki bangunan fisik
+        </div>
+        <div class="quiz-option" onclick="selectQuiz2(this, false)">
+          Gereja yang beribadah secara online
+        </div>
+      </div>
+      <div class="quiz-feedback" id="q2-feedback"></div>
+    </div>
+
+    <div class="navigation-buttons">
+      <button class="btn-back show" onclick="prevChunk()">← Kembali</button>
+      <button class="btn-next" id="btn-chunk4" onclick="nextChunk()">Lanjutkan →</button>
+    </div>
+  </div>
+
+  <!-- CHUNK 5: PRINSIP KEPEMIMPINAN + INTERAKSI -->
+  <div class="chunk chunk-concept" id="chunk5">
+    <span class="chunk-number">BAGIAN 5 dari 8</span>
+    <h2>Kepemimpinan dalam Gereja Perjanjian Baru</h2>
+    
+    <p>Dalam Perjanjian Baru, kepemimpinan gereja memiliki struktur yang unik. Para rasul adalah pemimpin utama yang ditunjuk langsung oleh Yesus. Namun, seiring berkembangnya gereja, muncul pemimpin-pemimpin lain yang membantu pelayanan.</p>
+
+    <p>Terdapat dua peran kepemimpinan penting: <strong>Penatua</strong> (<em>presbiter</em>) dan <strong>Uskup/Penilik</strong> (<em>episkopos</em>). Yang menarik, para penilik gereja dipilih dari kalangan penatua, bukan sebagai atasan mereka.</p>
+
+    <div class="tahukah-box">
+      <div class="tahukah-header">
+        <span class="lamp">💡</span>
+        <span>Tahukah Kamu?</span>
+      </div>
+      <p class="tahukah-text">Kata "uskup" dalam bahasa Yunani adalah <em>episkopos</em> yang artinya "penilik" atau "pengawas". Mereka bertugas mengawasi dan membimbing jemaat.</p>
+    </div>
+
+    <div class="drag-container">
+      <p style="font-weight:700; color: var(--blue-deep); margin-bottom:12px;">Cocokkan peran dengan tanggung jawabnya:</p>
+      <div class="drag-items" id="drag-items-1">
+        <div class="drag-item" draggable="true" data-id="1">Mengajar dan memimpin jemaat</div>
+        <div class="drag-item" draggable="true" data-id="2">Menyebarkan Injil ke berbagai tempat</div>
+        <div class="drag-item" draggable="true" data-id="3">Mengawasi dan membimbing gereja lokal</div>
+      </div>
+      
+      <div class="drop-zones">
+        <div class="drop-zone" data-answer="1">
+          <div class="drop-zone-label">Penatua (Presbiter)</div>
+        </div>
+        <div class="drop-zone" data-answer="2">
+          <div class="drop-zone-label">Rasul</div>
+        </div>
+        <div class="drop-zone" data-answer="3">
+          <div class="drop-zone-label">Uskup (Episkopos)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="navigation-buttons">
+      <button class="btn-back show" onclick="prevChunk()">← Kembali</button>
+      <button class="btn-next" id="btn-chunk5" onclick="nextChunk()">Lanjutkan →</button>
+    </div>
+  </div>
+
+  <!-- CHUNK 6: PRINSIP TATA GEREJA + KUIS -->
+  <div class="chunk chunk-concept" id="chunk6">
+    <span class="chunk-number">BAGIAN 6 dari 8</span>
+    <h2>Tujuh Prinsip Tata Gereja yang Kuat</h2>
+    
+    <p>Perjanjian Baru memberikan fondasi kuat bagi tata kelola gereja. Berikut adalah prinsip-prinsip utama yang tetap relevan hingga kini:</p>
+
+    <div class="summary-box">
+      <p><strong>1. Kepemimpinan Rasul</strong> - Para rasul dan pemimpin gereja membimbing jemaat sesuai ajaran Kristus.</p>
+      <p><strong>2. Kedisiplinan Gereja</strong> - Gereja memiliki otoritas untuk menegakkan disiplin bagi anggota yang menyimpang.</p>
+      <p><strong>3. Persatuan dalam Keragaman</strong> - Orang dari berbagai latar belakang bersatu dalam Kristus.</p>
+      <p><strong>4. Pelayanan dan Karunia Roh</strong> - Setiap anggota memiliki karunia untuk melayani.</p>
+      <p><strong>5. Pengajaran dan Iman</strong> - Gereja adalah tempat belajar dan bertumbuh dalam iman.</p>
+      <p><strong>6. Kesaksian dan Penginjilan</strong> - Memberitakan Injil adalah misi utama gereja.</p>
+      <p><strong>7. Ibadah dan Sakramen</strong> - Baptisan dan Perjamuan Kudus adalah bagian penting kehidupan gereja.</p>
+    </div>
+
+    <div class="tip-box">
+      <img src="maskot.png" alt="Maskot" class="mascot-img">
+      <div>
+        <div class="tip-label">Ingat!</div>
+        <div class="tip-text">Tata gereja yang ideal adalah yang berpusat pada Kristus, melibatkan semua anggota, dan mencerminkan nilai-nilai Injil.</div>
+      </div>
+    </div>
+
+    <div class="quiz-block">
+      <p class="quiz-question">Prinsip mana yang menekankan bahwa setiap orang Kristen memiliki pemberian khusus dari Roh Kudus untuk melayani?</p>
+      <div class="quiz-options" id="q3-options">
+        <div class="quiz-option" onclick="selectQuiz3(this, false)">
+          Kedisiplinan Gereja
+        </div>
+        <div class="quiz-option" onclick="selectQuiz3(this, false)">
+          Persatuan dalam Keragaman
+        </div>
+        <div class="quiz-option" onclick="selectQuiz3(this, true)">
+          Pelayanan dan Karunia Roh Kudus
+        </div>
+        <div class="quiz-option" onclick="selectQuiz3(this, false)">
+          Ibadah dan Sakramen
+        </div>
+      </div>
+      <div class="quiz-feedback" id="q3-feedback"></div>
+    </div>
+
+    <div class="navigation-buttons">
+      <button class="btn-back show" onclick="prevChunk()">← Kembali</button>
+      <button class="btn-next" id="btn-chunk6" onclick="nextChunk()">Lanjutkan →</button>
+    </div>
+  </div>
+
+  <!-- CHUNK 7: RANGKUMAN -->
+  <div class="chunk chunk-summary" id="chunk7">
+    <span class="chunk-number">BAGIAN 7 dari 8</span>
+    <h2>Rangkuman: Gereja yang Hidup Sepanjang Zaman</h2>
+    
+    <div class="summary-box" id="summaryContent">
+      <h3>Poin-Poin Penting:</h3>
+      <ul>
+        <li><strong>Gereja adalah Persekutuan:</strong> Bukan sekadar bangunan, melainkan kumpulan orang yang diselamatkan oleh Kristus.</li>
+        <li><strong>Fondasi Sejarah:</strong> Gereja lahir pada Hari Pentakosta (33 M) dan berkembang melalui perjuangan dan penganiayaan hingga diakui secara resmi.</li>
+        <li><strong>Kepemimpinan yang Terstruktur:</strong> Para rasul, penatua, dan uskup memiliki peran penting dalam membimbing jemaat.</li>
+        <li><strong>Tujuh Prinsip Utama:</strong> Kepemimpinan rasul, kedisiplinan, persatuan, pelayanan, pengajaran, penginjilan, dan ibadah membentuk identitas gereja.</li>
+        <li><strong>Relevansi Masa Kini:</strong> Prinsip-prinsip Perjanjian Baru tetap menjadi landasan gereja modern dalam menghadapi tantangan zaman.</li>
+        <li><strong>Misi Gereja:</strong> Menyebarkan Injil dan melayani dunia dengan kasih Kristus adalah panggilan abadi gereja.</li>
+      </ul>
+    </div>
+
+    <button class="btn-download-summary" onclick="downloadSummary()">📥 Unduh Rangkuman</button>
+    
+    <div class="navigation-buttons">
+      <button class="btn-back show" onclick="prevChunk()">← Kembali</button>
+      <button class="btn-next show" onclick="nextChunk()">Lanjutkan ke Refleksi →</button>
+    </div>
+  </div>
+
+  <!-- CHUNK 8: REFLEKSI -->
+  <div class="chunk chunk-reflect" id="chunk8">
+    <span class="chunk-number">BAGIAN 8 dari 8</span>
+    <h2>Refleksi: Peranmu dalam Gereja</h2>
+    
+    <p>Setelah mempelajari Tatanan Gereja Perjanjian Baru, saatnya untuk merefleksikan apa yang telah kamu pelajari dan bagaimana kamu dapat menerapkannya.</p>
+
+    <div class="reflection-form">
+      <div class="reflection-item">
+        <label>1. Apa pemahaman baru yang kamu dapatkan tentang arti gereja setelah mempelajari materi ini?</label>
+        <textarea id="reflect1" placeholder="Tuliskan refleksimu di sini..."></textarea>
+      </div>
+
+      <div class="reflection-item">
+        <label>2. Dari tujuh prinsip tata gereja, mana yang paling menarik bagimu dan mengapa?</label>
+        <textarea id="reflect2" placeholder="Tuliskan refleksimu di sini..."></textarea>
+      </div>
+
+      <div class="reflection-item">
+        <label>3. Bagaimana kamu dapat berkontribusi dalam gerejamu berdasarkan prinsip-prinsip yang telah dipelajari?</label>
+        <textarea id="reflect3" placeholder="Tuliskan refleksimu di sini..."></textarea>
+      </div>
+    </div>
+
+    <button class="btn-save-reflection" onclick="saveReflection()">💾 Simpan Refleksi sebagai JPG</button>
+
+    <div class="navigation-buttons" style="margin-top: 20px;">
+      <button class="btn-back show" onclick="prevChunk()">← Kembali</button>
+    </div>
+
+    <div style="text-align:center; margin-top:40px; padding:20px; background:var(--green-light); border-radius:var(--radius);">
+      <h3 style="color:var(--green); margin-bottom:10px;">🎉 Selamat!</h3>
+      <p style="margin:0;">Kamu telah menyelesaikan pembelajaran tentang Tatanan Gereja Perjanjian Baru.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===== STATE MANAGEMENT =====
+let currentChunk = 1;
+const totalChunks = 8;
+let quizAttempts = {
+  q1: 0,
+  q2: 0,
+  q3: 0
+};
+
+// ===== INITIALIZE =====
+function startLearning() {
+  document.getElementById('splash').classList.add('hide');
+  setTimeout(() => {
+    document.getElementById('splash').style.display = 'none';
+    document.getElementById('topBar').style.display = 'block';
+    document.getElementById('mainContent').style.display = 'block';
+    updateProgress();
+  }, 800);
+}
+
+// ===== PROGRESS =====
+function updateProgress() {
+  const progress = (currentChunk / totalChunks) * 100;
+  document.getElementById('progressFill').style.width = progress + '%';
+  document.getElementById('progressLabel').textContent = currentChunk + '/' + totalChunks;
+}
+
+// ===== NAVIGATION =====
+function nextChunk() {
+  if (currentChunk < totalChunks) {
+    document.getElementById('chunk' + currentChunk).classList.remove('active');
+    currentChunk++;
+    document.getElementById('chunk' + currentChunk).classList.add('active');
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Initialize drag and drop for chunk 5
+    if (currentChunk === 5) {
+      initDragDrop();
+    }
+  }
+}
+
+function prevChunk() {
+  if (currentChunk > 1) {
+    document.getElementById('chunk' + currentChunk).classList.remove('active');
+    currentChunk--;
+    document.getElementById('chunk' + currentChunk).classList.add('active');
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+// ===== QUIZ 1: FILL IN THE BLANK =====
+function checkQuiz1() {
+  const input = document.getElementById('q1-input').value.trim();
+  const feedback = document.getElementById('q1-feedback');
+  const btn = document.getElementById('btn-chunk3');
+  
+  quizAttempts.q1++;
+  
+  if (input === '28' || input === '33 M') {
+    feedback.className = 'quiz-feedback correct show';
+    feedback.textContent = '✅ Benar! Gereja mula-mula lahir pada tahun 33 M saat Hari Pentakosta.';
+    btn.classList.add('show');
+    document.getElementById('q1-input').disabled = true;
+  } else {
+    feedback.className = 'quiz-feedback wrong show';
+    if (quizAttempts.q1 >= 3) {
+      feedback.textContent = '❌ Jawaban yang benar adalah: 33 M (Tahun 33 Masehi)';
+      btn.classList.add('show');
+      document.getElementById('q1-input').disabled = true;
+    } else {
+      feedback.textContent = '❌ Belum tepat. Coba ingat tahun yang disebutkan dalam timeline. (Percobaan ' + quizAttempts.q1 + '/3)';
+    }
+  }
+}
+
+// ===== QUIZ 2: MULTIPLE CHOICE =====
+function selectQuiz2(element, isCorrect) {
+  const options = document.getElementById('q2-options').children;
+  const feedback = document.getElementById('q2-feedback');
+  const btn = document.getElementById('btn-chunk4');
+  
+  // Disable all options
+  for (let opt of options) {
+    opt.classList.add('disabled');
+  }
+  
+  quizAttempts.q2++;
+  
+  if (isCorrect) {
+    element.classList.add('correct');
+    feedback.className = 'quiz-feedback correct show';
+    feedback.textContent = '✅ Sempurna! Gereja yang tak kasat mata adalah kumpulan semua orang yang sungguh diselamatkan oleh Yesus Kristus.';
+    btn.classList.add('show');
+  } else {
+    element.classList.add('wrong');
+    feedback.className = 'quiz-feedback wrong show';
+    if (quizAttempts.q2 >= 3) {
+      feedback.textContent = '❌ Jawaban yang benar: Gereja yang tak kasat mata adalah kumpulan semua orang yang diselamatkan oleh Yesus Kristus.';
+      btn.classList.add('show');
+      // Highlight correct answer
+      for (let opt of options) {
+        if (opt.onclick.toString().includes('true')) {
+          opt.classList.add('correct');
+        }
+      }
+    } else {
+      feedback.textContent = '❌ Coba lagi! Pikirkan tentang aspek spiritual gereja. (Percobaan ' + quizAttempts.q2 + '/3)';
+      // Re-enable options
+      setTimeout(() => {
+        for (let opt of options) {
+          opt.classList.remove('disabled', 'wrong');
+        }
+      }, 1500);
+    }
+  }
+}
+
+// ===== QUIZ 3: MULTIPLE CHOICE =====
+function selectQuiz3(element, isCorrect) {
+  const options = document.getElementById('q3-options').children;
+  const feedback = document.getElementById('q3-feedback');
+  const btn = document.getElementById('btn-chunk6');
+  
+  // Disable all options
+  for (let opt of options) {
+    opt.classList.add('disabled');
+  }
+  
+  quizAttempts.q3++;
+  
+  if (isCorrect) {
+    element.classList.add('correct');
+    feedback.className = 'quiz-feedback correct show';
+    feedback.textContent = '✅ Benar sekali! Pelayanan dan Karunia Roh Kudus menekankan bahwa setiap anggota gereja memiliki karunia khusus untuk melayani.';
+    btn.classList.add('show');
+  } else {
+    element.classList.add('wrong');
+    feedback.className = 'quiz-feedback wrong show';
+    if (quizAttempts.q3 >= 3) {
+      feedback.textContent = '❌ Jawaban yang benar: Pelayanan dan Karunia Roh Kudus - prinsip ini menekankan bahwa setiap anggota memiliki pemberian khusus dari Roh Kudus.';
+      btn.classList.add('show');
+      // Highlight correct answer
+      for (let opt of options) {
+        if (opt.onclick.toString().includes('true')) {
+          opt.classList.add('correct');
+        }
+      }
+    } else {
+      feedback.textContent = '❌ Belum tepat. Pikirkan prinsip yang berkaitan dengan pemberian khusus dari Roh Kudus. (Percobaan ' + quizAttempts.q3 + '/3)';
+      // Re-enable options
+      setTimeout(() => {
+        for (let opt of options) {
+          opt.classList.remove('disabled', 'wrong');
+        }
+      }, 1500);
+    }
+  }
+}
+
+// ===== DRAG AND DROP =====
+let draggedItem = null;
+const correctPairs = {
+  '1': '1',
+  '2': '2',
+  '3': '3'
+};
+let matchedPairs = 0;
+
+function initDragDrop() {
+  const dragItems = document.querySelectorAll('.drag-item');
+  const dropZones = document.querySelectorAll('.drop-zone');
+  
+  dragItems.forEach(item => {
+    item.addEventListener('dragstart', handleDragStart);
+    item.addEventListener('dragend', handleDragEnd);
+  });
+  
+  dropZones.forEach(zone => {
+    zone.addEventListener('dragover', handleDragOver);
+    zone.addEventListener('drop', handleDrop);
+    zone.addEventListener('dragleave', handleDragLeave);
+  });
+}
+
+function handleDragStart(e) {
+  draggedItem = this;
+  this.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function handleDragEnd(e) {
+  this.classList.remove('dragging');
+}
+
+function handleDragOver(e) {
+  if (e.preventDefault) {
+    e.preventDefault();
+  }
+  this.classList.add('drag-over');
+  e.dataTransfer.dropEffect = 'move';
+  return false;
+}
+
+function handleDragLeave(e) {
+  this.classList.remove('drag-over');
+}
+
+function handleDrop(e) {
+  if (e.stopPropagation) {
+    e.stopPropagation();
+  }
+  
+  this.classList.remove('drag-over');
+  
+  const zoneAnswer = this.getAttribute('data-answer');
+  const itemId = draggedItem.getAttribute('data-id');
+  
+  if (correctPairs[itemId] === zoneAnswer) {
+    this.appendChild(draggedItem);
+    draggedItem.style.border = '2px solid var(--green)';
+    draggedItem.style.background = 'var(--green-light)';
+    draggedItem.draggable = false;
+    matchedPairs++;
+    
+    if (matchedPairs === 3) {
+      document.getElementById('btn-chunk5').classList.add('show');
+    }
+  } else {
+    draggedItem.style.animation = 'shake 0.5s';
+    setTimeout(() => {
+      draggedItem.style.animation = '';
+    }, 500);
+  }
+  
+  return false;
+}
+
+// ===== DOWNLOAD SUMMARY =====
+function downloadSummary() {
+  const summaryElement = document.getElementById('summaryContent');
+  
+  html2canvas(summaryElement, {
+    scale: 2,
+    backgroundColor: '#FFFFFF'
+  }).then(canvas => {
+    const link = document.createElement('a');
+    link.download = 'Rangkuman_Tatanan_Gereja_Perjanjian_Baru.jpg';
+    link.href = canvas.toDataURL('image/jpeg', 0.9);
+    link.click();
+  });
+}
+
+// ===== SAVE REFLECTION =====
+function saveReflection() {
+  const reflect1 = document.getElementById('reflect1').value;
+  const reflect2 = document.getElementById('reflect2').value;
+  const reflect3 = document.getElementById('reflect3').value;
+  
+  if (!reflect1 || !reflect2 || !reflect3) {
+    alert('Mohon isi semua pertanyaan refleksi terlebih dahulu.');
+    return;
+  }
+  
+  // Create reflection card
+  const reflectionCard = document.createElement('div');
+  reflectionCard.style.cssText = `
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    max-width: 700px;
+    margin: 0 auto;
+    font-family: 'Nunito', sans-serif;
+  `;
+  
+  reflectionCard.innerHTML = `
+    <h2 style="color: #1B3A5C; font-family: 'Playfair Display', serif; text-align: center; margin-bottom: 10px;">Refleksi Pembelajaran</h2>
+    <p style="text-align: center; color: #666; margin-bottom: 30px; font-size: 0.9rem;">Tatanan Gereja Perjanjian Baru</p>
+    
+    <div style="margin-bottom: 25px;">
+      <h3 style="color: #F28C28; font-size: 1rem; margin-bottom: 8px;">1. Pemahaman baru tentang gereja:</h3>
+      <p style="color: #333; line-height: 1.7; font-size: 0.95rem;">${reflect1}</p>
+    </div>
+    
+    <div style="margin-bottom: 25px;">
+      <h3 style="color: #F28C28; font-size: 1rem; margin-bottom: 8px;">2. Prinsip yang paling menarik:</h3>
+      <p style="color: #333; line-height: 1.7; font-size: 0.95rem;">${reflect2}</p>
+    </div>
+    
+    <div style="margin-bottom: 25px;">
+      <h3 style="color: #F28C28; font-size: 1rem; margin-bottom: 8px;">3. Kontribusi dalam gereja:</h3>
+      <p style="color: #333; line-height: 1.7; font-size: 0.95rem;">${reflect3}</p>
+    </div>
+    
+    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #E8F4FD;">
+      <p style="color: #4CAF50; font-weight: 700; font-size: 1rem;">✓ Pembelajaran Selesai</p>
+      <p style="color: #666; font-size: 0.85rem; margin-top: 5px;">${new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+    </div>
+  `;
+  
+  document.body.appendChild(reflectionCard);
+  
+  html2canvas(reflectionCard, {
+    scale: 2,
+    backgroundColor: '#FFFFFF'
+  }).then(canvas => {
+    const link = document.createElement('a');
+    link.download = 'Refleksi_Tatanan_Gereja_' + Date.now() + '.jpg';
+    link.href = canvas.toDataURL('image/jpeg', 0.9);
+    link.click();
+    document.body.removeChild(reflectionCard);
+    alert('Refleksi berhasil disimpan! 🎉');
+  });
+}
+</script>
+
+</body>
+</html>
